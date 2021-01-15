@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import scapy.all as scapy
-import optparse  # deprecated, find alternative
+import argparse
 
 ######################################################################
 # prints summary of fields to set
@@ -63,10 +63,10 @@ def print_result(results_list):
 
 
 def get_arguments():
-    parser = optparse.OptionParser()
-    parser.add_option("-r", "--range", dest="ip_range", help="INTRODUCE IP RANGE / 16 /24")
-    (options, arguments) = parser.parse_args()
-    if not options.ip_range:  # if not null
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", "--range", dest="ip_range", help="INTRODUCE IP RANGE / 16 /24")
+    options = parser.parse_args()
+    if not options:  # if not null
         parser.error("[-] Please specify an ip range, EX: '10.0.0.1/24' - use --help for more info.")
     return options
 
