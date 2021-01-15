@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import scapy.all as scapy
-import optparse
+import optparse  # deprecated, find alternative
 
 ######################################################################
 # prints summary of fields to set
