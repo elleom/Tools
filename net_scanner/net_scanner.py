@@ -45,7 +45,7 @@ def scan(ip):
     # REMEMBER TO RUN AS SUDO
 
     for element in answered_list:
-        print(element[1].show(), end="\n")
+        print(element[1].show(), end='\n')
 
 
 scan("192.168.15.1/24")
