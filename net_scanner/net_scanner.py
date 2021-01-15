@@ -6,7 +6,6 @@ import scapy.all as scapy
 # prints summary of fields to set
 # scapy.ls(scapy.ARP())
 # scapy.ls(scapy.Ether())
-
 '''
     #scapy.ls(scapy.ARP()) OUTPUT EXAMPLE
 
@@ -20,8 +19,6 @@ import scapy.all as scapy
     hwdst: MultipleTypeField = (None)
     pdst: MultipleTypeField = (None)
 '''
-
-
 ########################################################################
 
 
@@ -40,11 +37,15 @@ def scan(ip):
     print(request_broadcast.summary())
 
     request_broadcast.show()  # prints details
-    answered, unanswered = scapy.srp(request_broadcast, timeout=1)  # timeout: waits for a sec (int),
+    answered_list = scapy.srp(request_broadcast, timeout=1)[0]  # timeout: waits for a sec (int),
     # otherwise could get stuck
 
-    print(answered.summary())
-    print(unanswered.summary())
+    # print(answered_list.summary())
+    # print(unanswered.summary()) not really neaeed :)
+    # REMEMBER TO RUN AS SUDO
+
+    for element in answered_list:
+        print(element[1].show(), end="\n")
 
 
 scan("192.168.15.1/24")
