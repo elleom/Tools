@@ -51,7 +51,7 @@ try:
         spoof(arguments.gateway_ip, arguments.source)
         time.sleep(2)
 except KeyboardInterrupt:
-    print("[+] Program finished")
+    print("[*] Program finished")
 
 
 
