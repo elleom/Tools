@@ -49,11 +49,11 @@ try:
         spoof(arguments.target_ip, arguments.gateway_ip)
         spoof(arguments.gateway_ip, arguments.target_ip)
         sent_packets_count += 2
-        print(f'[+] Sent 2 packets, {sent_packets_count} packets sent')
+        print(f'\r[+] Sent 2 packets, {sent_packets_count} packets sent', end='')
         time.sleep(2)
 
 except KeyboardInterrupt:
-    print("[*] Program finished")
+    print("\n[*]Exiting.... \n[*] Program finished")
 
 
 
