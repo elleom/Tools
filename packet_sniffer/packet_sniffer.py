@@ -2,6 +2,7 @@
 
 import scapy.all as scapy
 from scapy.layers import http
+import argparse
 
 
 def sniff(interface):
@@ -24,4 +25,15 @@ def process_sniff_packet(packet):
                     break
 
 
-sniff("eth0")
+def get_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--iface', dest='iface', help='Interface to sniff on')
+    option = parser.parse_args()
+    if not option.iface:
+        parser.error('[+] Please specify an interface to sniff on')
+    else:
+        return option.iface
+
+
+interface = get_arguments()
+sniff(interface)
