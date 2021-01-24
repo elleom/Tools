@@ -20,8 +20,10 @@ def process_sniff_packet(packet):
             payload = packet[scapy.Raw].load
             keywords = ['username', 'uname', 'uid', 'user', 'email', 'mail', 'userid', 'id', 'login', 'password', 'pass']
             for word in keywords:
-                if word in payload:
-                    print(payload)
+                if word.encode() in payload:  # word.encode() to turn the string into bytes #Req!
+                    print('[+] HTTP Request >> ',
+                          str(packet[http.HTTPRequest].Host), str(packet[http.HTTPRequest].Path), sep='')
+                    print('[+] Possible credentials capured :', payload, end='\n')
                     break
 
 
@@ -36,4 +38,7 @@ def get_arguments():
 
 
 interface = get_arguments()
-sniff(interface)
+try:
+    sniff(interface)
+except KeyboardInterrupt:
+    print('[-] Program finished...')
