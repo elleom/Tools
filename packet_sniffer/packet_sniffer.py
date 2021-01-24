@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import scapy.all as scapy
+from scapy.layers import http
 
 
 def sniff(interface):
@@ -13,7 +14,8 @@ def sniff(interface):
 
 
 def process_sniff_packet(packet):
-    print(packet)
+    if packet.haslayer(http.HTTPRequest):
+        print(packet)
 
 
 sniff("eth0")
