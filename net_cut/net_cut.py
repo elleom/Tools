@@ -9,7 +9,6 @@
 # cd python-netfilterqueue
 # python setup.py install
 
-
 import netfilterqueue
 
 
@@ -17,6 +16,6 @@ def process_packet(packet):
     print(packet)
 
 
-queue = netfilterqueue.Netfilterqueue
-queue.bind(0, process_packet)
+queue = netfilterqueue.Netfilterqueue()
+queue.bind(0, process_packet)  # 0 STANDS FOR THE QUEUE NUMBER
 queue.run()

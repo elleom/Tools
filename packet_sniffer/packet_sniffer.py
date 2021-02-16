@@ -5,8 +5,8 @@ from scapy.layers import http
 import argparse
 
 
-def sniff(interface):
-    scapy.sniff(iface=interface, store=False, prn=process_sniff_packet, filter="tcp")  # prn= callback
+def sniff(iface):
+    scapy.sniff(iface=iface, store=False, prn=process_sniff_packet, filter="tcp")  # prn= callback
     # available filters
     # bps syntax https://biot.com/capstats/bpf.html
     # port 21
