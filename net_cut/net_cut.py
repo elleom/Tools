@@ -19,13 +19,14 @@ import scapy.all as scapy
 
 def process_packet(packet):
     print(packet)
-    print(packet.get_payoad())  # needs to be converted to a scapy packet
+    print(packet.get_payload())  # needs to be converted to a scapy packet
 
-    scapy_packet = scapy.IP(packet)  # wraps the packet into IP layer
-    print(scapy_packet.show())
+    scapy_packet = scapy.IP(packet.get_payload())  # wraps the packet into IP layer
+    if scapy_packet.haslayer(scapy.DNSRR):
+        print(scapy_packet.show())
 
     # packet.drop()  # choose what to do and uncomment
-    # packet.accept()  # choose what to do and uncomment
+    packet.accept()  # choose what to do and uncomment
 
 
 queue = netfilterqueue.NetfilterQueue()
