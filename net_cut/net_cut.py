@@ -70,4 +70,4 @@ try:
     queue.bind(0, process_packet)  # 0 STANDS FOR THE QUEUE NUMBER
     queue.run()
 except KeyboardInterrupt:
-    print("[*] Exiting program...")
+    print("[*] Exiting program... :)")
