@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import http
 import scapy.all as scapy
 import netfilterqueue
 
