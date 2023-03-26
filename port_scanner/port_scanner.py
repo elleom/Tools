@@ -19,15 +19,16 @@ def get_ports(ports):
 def get_port_status(ip_address, port):
     try:
         sock = socket.socket()
+        sock.settimeout(0.5)
         sock.connect((ip_address, port))
         print(f' ... port ' + Fore.GREEN + 'OPEN' + Style.RESET_ALL)
         sock.close()
-    except ConnectionError:
-        print(f' ... port {port} seems to be '
-              + Fore.RED + 'CLOSED'
-              + 'or' + Fore.WHITE
-              + 'FILTERED'
-              + Style.RESET_ALL)
+    except TimeoutError or ConnectionError:
+        print(f' ... port {port} seems to be'
+              , Fore.RED + 'CLOSED'
+              , Fore.LIGHTWHITE_EX + 'or'
+              , Fore.YELLOW + 'FILTERED'
+              + Style.RESET_ALL, sep=' ')
 
 
 def parse_scan_vars(ip_address, ports, url=None):
