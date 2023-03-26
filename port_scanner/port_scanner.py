@@ -3,16 +3,52 @@
 import socket
 import argparse
 import header.header_banner
+from colorama import Fore, Style
 
 
-def scan(ip_address, port, url=None):
+def get_ports(ports):
+    if '/' in ports:
+        # handles range
+        return ports.split('/'), True
+    elif '-' in ports:
+        return ports.split('-'), False
+    else:
+        return ports, False
+
+
+def get_port_status(ip_address, port):
+    try:
+        sock = socket.socket()
+        sock.connect((ip_address, port))
+        print(f' ... port ' + Fore.GREEN + 'OPEN' + Style.RESET_ALL)
+        sock.close()
+    except ConnectionError:
+        print(f' ... port {port} seems to be '
+              + Fore.RED + 'CLOSED'
+              + 'or' + Fore.WHITE
+              + 'FILTERED'
+              + Style.RESET_ALL)
+
+
+def parse_scan_vars(ip_address, ports, url=None):
+
+    (ports, is_range) = get_ports(ports)
+
     try:
         if url:
             ip_address = socket.gethostbyname(url)
             print(f'[!] {url} resolved to {ip_address}')
         sock = socket.socket()
-        sock.connect((ip_address, port))
-        print(f'[*] Port {port} is open')
+
+        if is_range:
+            print(f'[*] Scanning range {ports[0]}:{ports[1]}')
+            for port in range(int(ports[0]), int(ports[1])):
+                get_port_status(ip_address, port)
+        else:
+            for port in ports:
+                print(f'[*] Scanning port {port}', end='')
+                get_port_status(ip_address, int(port))
+
     except ConnectionError:
         print(f'[*] Port {port} seems to be closed or filtered')
 
@@ -37,6 +73,6 @@ if '__main__':
         print('[!] MuiausOnTheWire :) is launching...')
     try:
         args = get_arguments()
-        scan(args.target_ip, int(args.port), args.url)
+        parse_scan_vars(args.target_ip, args.port, args.url)
     except KeyboardInterrupt:
         print('[-] Program terminated')
