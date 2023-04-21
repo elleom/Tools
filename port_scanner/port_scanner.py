@@ -21,7 +21,7 @@ def get_port_status(ip_address, port):
         sock = socket.socket()
         sock.settimeout(0.5)
         sock.connect((ip_address, port))
-        print(f' ... port ' + Fore.GREEN + 'OPEN' + Style.RESET_ALL)
+        print(f' ... port {port} is ' + Fore.GREEN + 'OPEN' + Style.RESET_ALL)
         sock.close()
     except TimeoutError or ConnectionError:
         print(f' ... port {port} seems to be'
