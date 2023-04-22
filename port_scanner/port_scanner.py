@@ -4,18 +4,21 @@ import socket
 import argparse
 import header.header_banner
 from colorama import Fore, Style
-
-banners_list = []  # stores banners to display at the end of each target scan
+from IPy import IP
 
 
 def get_ports(ports):
+    ports_array = []
     if '/' in ports:
         # handles range
-        return ports.split('/'), True
+        ports_array = ports.split('/')
+        return ports_array, True
     elif '-' in ports:
-        return ports.split('-'), False
+        ports_array = ports.split('-')
+        return ports_array, False
     else:
-        return ports, False
+        ports_array.append(ports)
+        return ports_array, False
 
 
 def get_banner(sock):
@@ -43,16 +46,24 @@ def get_port_status(ip_address, port):
               + Style.RESET_ALL, sep=' ')
 
 
-def parse_scan_vars(targets, ports, url=None):
+def check_ip(target):
+    try:
+        IP(target)
+        return target
+    except ValueError:
+        target_ip = socket.gethostbyname(target)
+        print(f'[!] {target} resolved to {target_ip}')
+        return target_ip
+
+
+def parse_scan_vars(targets, ports):
 
     (ports, is_range) = get_ports(ports)
 
-    for ip_addr in targets.split(','):
-        print(f'[*] Initiating scan on {ip_addr}')
+    for target in targets.split(','):
+        print(f'[*] Initiating scan on {target}')
+        ip_addr = check_ip(target)
         try:
-            if url:
-                targets = socket.gethostbyname(url)
-                print(f'[!] {url} resolved to {targets}')
             if is_range:
                 print(f'[*] Scanning range {ports[0]}:{ports[1]}')
                 for port in range(int(ports[0]), int(ports[1])+1):
@@ -67,11 +78,12 @@ def parse_scan_vars(targets, ports, url=None):
             else:
                 print(f'[*] Port {port} seems to be closed or filtered')
 
+
 def get_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ip', dest='target_ip', help="IP/s to target interface - !!! [split differnent ip using ',']")
+    parser.add_argument('--target', dest='target_ip',
+                        help="IP/s to target interface - !!! [split different ip using ',']")
     parser.add_argument('--port', dest='port', help="port/s to scan !!! [takes only one linear range. e.g 5/75]")
-    parser.add_argument('--url', dest='url', help="Target's URL")
     options = parser.parse_args()
     if not options.target_ip and not options.url:
         parser.error("[!] Introduce target's IPV4 or URL")
@@ -87,6 +99,6 @@ if '__main__':
         print('[!] MuiausOnTheWire :) is launching...')
     try:
         args = get_arguments()
-        parse_scan_vars(args.target_ip, args.port, args.url)
+        parse_scan_vars(args.target_ip, args.port)
     except KeyboardInterrupt:
         print('[-] Program terminated')
