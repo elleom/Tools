@@ -92,7 +92,7 @@ def get_arguments():
     return options
 
 
-if '__main__':
+if __name__ == '__main__':
     try:
         header.header_banner.print_header()
     except ModuleNotFoundError:
