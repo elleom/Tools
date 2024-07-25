@@ -39,10 +39,10 @@ def get_port_status(ip_address, port):
             print(f'[+] Open port {str(port)} \'s banner is hidden')
         sock.close()
     except TimeoutError or ConnectionError:
-        print(f' ... port {port} seems to be'
-              , Fore.RED + 'CLOSED'
-              , Fore.LIGHTWHITE_EX + 'or'
-              , Fore.YELLOW + 'FILTERED'
+        print(f' ... port {port} seems to be',
+              Fore.RED + 'CLOSED',
+              Fore.LIGHTWHITE_EX + 'or',
+              Fore.YELLOW + 'FILTERED'
               + Style.RESET_ALL, sep=' ')
 
 
