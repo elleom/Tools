@@ -1,5 +1,10 @@
 import paramiko, sys, os, socket, termcolor, argparse
 
+
+def ssh_connect(password):
+    pass
+
+
 def main(arguments):
     host = arguments.target_ip
     username = arguments.username
@@ -11,8 +16,14 @@ def main(arguments):
     else:
         with open(input_file, 'r') as file:
             for line in file.readlines():
-                termcolor.cprint(line.strip("\n"), "yellow")
-
+                password = line.strip("\n")
+                termcolor.cprint(f'[*] Attempting to connect to {username}@{host} with password {password}', "yellow")
+                try:
+                    ssh_connect(password)
+                    # on success break loop, no need to keep trying
+                    break
+                except ConnectionError:
+                    termcolor.cprint("Something")
 
 
 def get_arguments():
@@ -29,9 +40,8 @@ def get_arguments():
         parser.error("[!] Introduce target SSH username")
     elif not options.path:
         parser.error("[!] Introduce path to file")
-    return options
 
-    return parser.parse_args()
+    return options
 
 
 if __name__ == "__main__":
