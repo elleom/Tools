@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-import argparse, hashlib, termcolor
+import argparse
+import hashlib
+import termcolor
 
 
 def get_password_match(digest: str, hash_list: list) -> None:
